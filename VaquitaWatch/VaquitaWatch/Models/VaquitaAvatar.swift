@@ -5,11 +5,11 @@ enum VaquitaSkin: String, CaseIterable, Identifiable {
     case classic = "Classic"
     case explorer = "Explorer"
     case night = "Night Glow"
-    case coral = "Coral Reef"
+    case scientist = "Scientist"
     case golden = "Golden Sunset"
     
     var id: String { self.rawValue }
-    var imageName: String { "vaquita_skin_\(self.rawValue.lowercased().replacingOccurrences(of: " ", with: "_"))" }
+    var imageName: String { "Vaquitas/vaquita_\(self.rawValue.lowercased().replacingOccurrences(of: " ", with: "_"))" }
 }
 
 enum VaquitaAccessory: String, CaseIterable, Identifiable {
