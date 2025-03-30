@@ -73,6 +73,7 @@ struct VaquitaAvatarView: View {
     @EnvironmentObject var appState: AppState
     @State private var showingCustomizationSheet = false
     @State private var showingAdoptionSheet = false
+    @State private var showingCertificateSheet = false
     @State private var isBreathing = false
     @State private var showingBubbles = false
     
@@ -158,27 +159,34 @@ struct VaquitaAvatarView: View {
                                 }
                             )
                             
-                            ActionButton(
-                                icon: "shuffle",
-                                label: "Customize",
-                                action: { showingCustomizationSheet = true }
-                            )
-                            
-                            if !appState.userVaquita.isAdopted {
+                            if appState.userVaquita.isAdopted {
+                                ActionButton(
+                                    icon: "shuffle",
+                                    label: "Customize",
+                                    action: { showingCustomizationSheet = true }
+                                )
+                                
+                                ActionButton(
+                                    icon: "doc.fill",
+                                    label: "Certificate",
+                                    action: { showingCertificateSheet = true }
+                                )
+                            } else {
                                 ActionButton(
                                     icon: "heart.fill",
                                     label: "Adopt",
                                     action: { showingAdoptionSheet = true }
                                 )
-                            } else {
-                                ActionButton(
-                                    icon: "info.circle.fill",
-                                    label: "Certificate",
-                                    action: { /* Show adoption certificate */ }
-                                )
                             }
                         }
                         .padding(.horizontal)
+                        
+                        // Adoption call-to-action if not adopted
+                        if !appState.userVaquita.isAdopted {
+                            AdoptionCallToActionView(action: { showingAdoptionSheet = true })
+                                .padding(.horizontal)
+                                .padding(.vertical, 10)
+                        }
                         
                         // Fun facts about your vaquita
                         VStack(alignment: .leading, spacing: 16) {
@@ -236,10 +244,18 @@ struct VaquitaAvatarView: View {
             }
         }
         .sheet(isPresented: $showingCustomizationSheet) {
-            CustomizationView(vaquita: $appState.userVaquita)
+            if appState.userVaquita.isAdopted {
+                CustomizationView(vaquita: $appState.userVaquita)
+            } else {
+                // Fallback to adoption view if somehow accessed without adoption
+                AdoptionView(vaquita: $appState.userVaquita)
+            }
         }
         .sheet(isPresented: $showingAdoptionSheet) {
             AdoptionView(vaquita: $appState.userVaquita)
+        }
+        .sheet(isPresented: $showingCertificateSheet) {
+            AdoptionCertificateView(vaquita: appState.userVaquita)
         }
         .onAppear {
             isBreathing = true
@@ -256,6 +272,11 @@ struct VaquitaAvatarView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     showingBubbles = false
                 }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowVaquitaCertificate"))) { _ in
+            if appState.userVaquita.isAdopted {
+                showingCertificateSheet = true
             }
         }
     }
@@ -427,6 +448,46 @@ struct Bubble: View {
     }
 }
 
+// Adoption Call to Action view
+struct AdoptionCallToActionView: View {
+    var action: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("Adopt Your Vaquita")
+                .font(.headline)
+                .foregroundColor(.white)
+            
+            Text("Adopt for $3.99 to unlock customization, naming, and more while helping vaquita conservation efforts.")
+                .font(.subheadline)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.white.opacity(0.9))
+            
+            Button(action: action) {
+                HStack {
+                    Image(systemName: "heart.fill")
+                    Text("Adopt Now - $3.99")
+                        .fontWeight(.bold)
+                }
+                .foregroundColor(.white)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.coralAccent)
+                .cornerRadius(12)
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .strokeBorder(Color.coralAccent.opacity(0.6), lineWidth: 2)
+                )
+        )
+    }
+}
+
 // Customization sheet view
 struct CustomizationView: View {
     @Binding var vaquita: VaquitaAvatar
@@ -435,6 +496,8 @@ struct CustomizationView: View {
     @State private var selectedSkin: String
     @State private var selectedAccessory: String
     @State private var selectedBackground: String
+    @State private var showingPremiumDialog = false
+    @State private var selectedPremiumItem = ""
     
     init(vaquita: Binding<VaquitaAvatar>) {
         self._vaquita = vaquita
@@ -491,6 +554,10 @@ struct CustomizationView: View {
                                     .onTapGesture {
                                         if isUnlocked(skin.rawValue) || skin == .classic {
                                             selectedSkin = skin.rawValue
+                                        } else {
+                                            // Show premium customization info
+                                            selectedPremiumItem = skin.rawValue
+                                            showingPremiumDialog = true
                                         }
                                     }
                                 }
@@ -517,6 +584,10 @@ struct CustomizationView: View {
                                     .onTapGesture {
                                         if isUnlocked(accessory.rawValue) || accessory == .none {
                                             selectedAccessory = accessory.rawValue
+                                        } else {
+                                            // Show premium customization info
+                                            selectedPremiumItem = accessory.rawValue
+                                            showingPremiumDialog = true
                                         }
                                     }
                                 }
@@ -543,12 +614,39 @@ struct CustomizationView: View {
                     presentationMode.wrappedValue.dismiss()
                 }
             )
+            .alert(isPresented: $showingPremiumDialog) {
+                Alert(
+                    title: Text("Premium Item"),
+                    message: Text("\(selectedPremiumItem) is a premium item. Unlock it for just $0.99 to further support vaquita conservation efforts."),
+                    primaryButton: .default(Text("Unlock for $0.99")) {
+                        // In a real app, this would trigger the in-app purchase
+                        var updatedVaquita = vaquita
+                        updatedVaquita.unlockPremiumItem(selectedPremiumItem)
+                        vaquita = updatedVaquita
+                        
+                        // Update selection if a skin was just unlocked
+                        if VaquitaSkin.allCases.map(\.rawValue).contains(selectedPremiumItem) {
+                            selectedSkin = selectedPremiumItem
+                        } else if VaquitaAccessory.allCases.map(\.rawValue).contains(selectedPremiumItem) {
+                            selectedAccessory = selectedPremiumItem
+                        }
+                    },
+                    secondaryButton: .cancel()
+                )
+            }
         }
     }
     
     // Function to check if customization is unlocked
     private func isUnlocked(_ itemId: String) -> Bool {
-        return vaquita.isAdopted || vaquita.skin == itemId
+        // Basic items are available with adoption, premium items need to be specifically unlocked
+        let premiumItems = ["Golden Sunset", "Night Glow", "Ocean Glow", "Coral Companion"]
+        
+        if premiumItems.contains(itemId) {
+            return vaquita.isAdopted && vaquita.unlockedPremiumItems.contains(itemId)
+        }
+        
+        return vaquita.isAdopted
     }
 }
 
@@ -573,7 +671,7 @@ struct AdoptionView: View {
                         .font(.system(.title, design: .rounded))
                         .fontWeight(.bold)
                     
-                    Text("Your one-time adoption donation helps fund vaquita conservation efforts. You'll receive a digital adoption certificate and unlock all customization options!")
+                    Text("Your one-time adoption donation of $3.99 helps fund vaquita conservation efforts. You'll receive a digital adoption certificate and unlock customization options!")
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                     
@@ -585,10 +683,10 @@ struct AdoptionView: View {
                             .font(.headline)
                         
                         AdoptionBenefitRow(icon: "checkmark.circle.fill", text: "Digital adoption certificate")
-                        AdoptionBenefitRow(icon: "checkmark.circle.fill", text: "All vaquita appearance options")
-                        AdoptionBenefitRow(icon: "checkmark.circle.fill", text: "All accessories")
-                        AdoptionBenefitRow(icon: "checkmark.circle.fill", text: "Special backgrounds")
-                        AdoptionBenefitRow(icon: "checkmark.circle.fill", text: "Exclusive weekly challenges")
+                        AdoptionBenefitRow(icon: "checkmark.circle.fill", text: "Ability to name your vaquita")
+                        AdoptionBenefitRow(icon: "checkmark.circle.fill", text: "Basic vaquita appearance options")
+                        AdoptionBenefitRow(icon: "checkmark.circle.fill", text: "Basic accessories")
+                        AdoptionBenefitRow(icon: "checkmark.circle.fill", text: "Certificate sharing on social media")
                     }
                     .padding(.horizontal)
                     
@@ -597,9 +695,10 @@ struct AdoptionView: View {
                     Button(action: {
                         // In a real app, this would trigger the in-app purchase
                         vaquita.isAdopted = true
+                        vaquita.adoptionDate = Date()
                         showingThankYou = true
                     }) {
-                        Text("Adopt for $10.00")
+                        Text("Adopt for $3.99")
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -617,13 +716,135 @@ struct AdoptionView: View {
                 Alert(
                     title: Text("Thank You!"),
                     message: Text("You've successfully adopted \(vaquita.name)! Your contribution helps protect the vaquita in the wild."),
-                    dismissButton: .default(Text("OK")) {
+                    dismissButton: .default(Text("View Certificate")) {
                         presentationMode.wrappedValue.dismiss()
+                        // We'll need to show the certificate after dismissal
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            NotificationCenter.default.post(name: Notification.Name("ShowAdoptionCertificate"), object: nil)
+                        }
                     }
                 )
             }
         }
     }
+}
+
+// Adoption Certificate View
+struct AdoptionCertificateView: View {
+    let vaquita: VaquitaAvatar
+    @Environment(\.presentationMode) var presentationMode
+    @State private var isShareSheetShowing = false
+    
+    var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        return formatter
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 30) {
+                    Text("Certificate of Adoption")
+                        .font(.system(.largeTitle, design: .serif))
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                        .padding(.top, 40)
+                    
+                    Text("This certifies that")
+                        .font(.system(.body, design: .serif))
+                        .italic()
+                    
+                    Text(vaquita.name)
+                        .font(.system(.title, design: .serif))
+                        .fontWeight(.bold)
+                        .foregroundColor(Color.oceanDarkBlue)
+                    
+                    ZStack {
+                        Circle()
+                            .fill(Color.oceanDarkBlue.opacity(0.2))
+                            .frame(width: 180, height: 180)
+                        
+                        VaquitaImageView(
+                            skin: vaquita.skin,
+                            accessory: vaquita.accessory,
+                            isBreathing: true
+                        )
+                        .frame(width: 180, height: 180)
+                    }
+                    .padding()
+                    
+                    Text("has been adopted on")
+                        .font(.system(.body, design: .serif))
+                        .italic()
+                    
+                    Text(dateFormatter.string(from: vaquita.adoptionDate ?? Date()))
+                        .font(.system(.title3, design: .serif))
+                        .fontWeight(.semibold)
+                    
+                    Text("Thank you for your contribution to vaquita conservation.")
+                        .font(.system(.body, design: .serif))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                    
+                    Text("Your adoption helps protect one of the most endangered marine mammals on the planet.")
+                        .font(.system(.body, design: .serif))
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal)
+                    
+                    Button(action: {
+                        isShareSheetShowing = true
+                    }) {
+                        HStack {
+                            Image(systemName: "square.and.arrow.up")
+                            Text("Share Certificate")
+                        }
+                        .padding()
+                        .background(Color.oceanDarkBlue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
+                    .padding(.top, 20)
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 25)
+                        .fill(Color.white)
+                        .shadow(radius: 5)
+                        .padding()
+                )
+            }
+            .background(Color.oceanDeepBlue.opacity(0.1))
+            .navigationBarItems(
+                trailing: Button("Done") {
+                    presentationMode.wrappedValue.dismiss()
+                }
+            )
+        }
+        .sheet(isPresented: $isShareSheetShowing) {
+            // In a real implementation, this would be the actual image of the certificate
+            // For simplicity, we're sharing a text
+            let textToShare = "I just adopted \(vaquita.name) the vaquita in the Vaquita Watch app! Join me in helping protect this endangered species: [App Download Link]"
+            ActivityViewController(activityItems: [textToShare])
+        }
+    }
+}
+
+// Helper view for sharing content
+struct ActivityViewController: UIViewControllerRepresentable {
+    let activityItems: [Any]
+    let applicationActivities: [UIActivity]? = nil
+    
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(
+            activityItems: activityItems,
+            applicationActivities: applicationActivities
+        )
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 // Adoption benefit row

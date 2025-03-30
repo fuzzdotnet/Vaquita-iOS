@@ -44,8 +44,10 @@ struct VaquitaAvatar: Codable, Identifiable {
     var accessory: String = VaquitaAccessory.none.rawValue
     var background: String = VaquitaBackground.oceanic.rawValue
     var isAdopted: Bool = false
+    var adoptionDate: Date? = nil
     var happinessLevel: Int = 5 // Scale of 1-10
     var lastInteraction: Date = Date()
+    var unlockedPremiumItems: Set<String> = []
     
     // Increase happiness when user interacts with the avatar
     mutating func interact() {
@@ -60,5 +62,15 @@ struct VaquitaAvatar: Codable, Identifiable {
         if daysSinceLastInteraction > 0 {
             happinessLevel = max(1, happinessLevel - min(daysSinceLastInteraction, happinessLevel - 1))
         }
+    }
+    
+    // Check if a premium item is unlocked
+    func isPremiumItemUnlocked(_ itemId: String) -> Bool {
+        return unlockedPremiumItems.contains(itemId)
+    }
+    
+    // Unlock a premium item
+    mutating func unlockPremiumItem(_ itemId: String) {
+        unlockedPremiumItems.insert(itemId)
     }
 } 

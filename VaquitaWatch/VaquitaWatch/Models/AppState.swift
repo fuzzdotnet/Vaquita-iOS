@@ -3,7 +3,11 @@ import Combine
 
 class AppState: ObservableObject {
     @Published var currentFact: VaquitaFact? = nil
-    @Published var userVaquita: VaquitaAvatar = VaquitaAvatar()
+    @Published var userVaquita: VaquitaAvatar = VaquitaAvatar() {
+        didSet {
+            saveState()
+        }
+    }
     @Published var completedChallenges: [String: Bool] = [:]
     @Published var isSubscriber: Bool = false
     @Published var unlockedItems: Set<String> = []
@@ -21,14 +25,41 @@ class AppState: ObservableObject {
         
         // Set today's fact when app starts
         setDailyFact()
+        
+        // Listen for notification to show adoption certificate
+        NotificationCenter.default.addObserver(self, selector: #selector(showAdoptionCertificate), name: Notification.Name("ShowAdoptionCertificate"), object: nil)
     }
     
     func loadSavedState() {
-        // TODO: Load user data from UserDefaults or other persistent storage
+        if let savedVaquitaData = UserDefaults.standard.data(forKey: "userVaquita") {
+            let decoder = JSONDecoder()
+            if let loadedVaquita = try? decoder.decode(VaquitaAvatar.self, from: savedVaquitaData) {
+                self.userVaquita = loadedVaquita
+            }
+        }
+        
+        self.completedChallenges = UserDefaults.standard.dictionary(forKey: "completedChallenges") as? [String: Bool] ?? [:]
+        self.checkInStreak = UserDefaults.standard.integer(forKey: "checkInStreak")
+        
+        if let lastCheckInTimeInterval = UserDefaults.standard.object(forKey: "lastCheckIn") as? TimeInterval {
+            self.lastCheckIn = Date(timeIntervalSince1970: lastCheckInTimeInterval)
+        }
     }
     
     func saveState() {
-        // TODO: Save user data to UserDefaults or other persistent storage
+        let encoder = JSONEncoder()
+        if let encodedVaquita = try? encoder.encode(userVaquita) {
+            UserDefaults.standard.set(encodedVaquita, forKey: "userVaquita")
+        }
+        
+        UserDefaults.standard.set(completedChallenges, forKey: "completedChallenges")
+        UserDefaults.standard.set(checkInStreak, forKey: "checkInStreak")
+        
+        if let lastCheckIn = lastCheckIn {
+            UserDefaults.standard.set(lastCheckIn.timeIntervalSince1970, forKey: "lastCheckIn")
+        } else {
+            UserDefaults.standard.removeObject(forKey: "lastCheckIn")
+        }
     }
     
     func setDailyFact() {
@@ -40,6 +71,18 @@ class AppState: ObservableObject {
             imageAsset: "vaquita_size_comparison",
             category: .biology
         )
+    }
+    
+    @objc func showAdoptionCertificate() {
+        NotificationCenter.default.post(name: Notification.Name("ShowVaquitaCertificate"), object: nil)
+    }
+    
+    // Helper function to unlock a premium item with IAP
+    func unlockPremiumItem(itemId: String) {
+        // In a real app, this would verify the purchase receipt
+        var updatedVaquita = userVaquita
+        updatedVaquita.unlockPremiumItem(itemId)
+        userVaquita = updatedVaquita
     }
     
     func checkIn() {
