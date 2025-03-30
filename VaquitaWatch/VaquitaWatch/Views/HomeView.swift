@@ -54,7 +54,7 @@ struct HomeView: View {
                             )
                     }
                     
-                    // Care for your Vaquita button
+                    // Meet Your Vaquita button
                     Button(action: {
                         // Navigate to avatar screen
                         selectedTab = 1
@@ -62,7 +62,7 @@ struct HomeView: View {
                         HStack {
                             Image(systemName: "heart.fill")
                                 .foregroundColor(.white)
-                            Text("Care for Your Vaquita")
+                            Text("Meet Your Vaquita")
                                 .font(.headline)
                                 .foregroundColor(.white)
                         }
