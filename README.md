@@ -1,17 +1,17 @@
-# Vaquita Watch App
+# Vaquita iOS App
 
-An interactive WatchOS application to raise awareness about the critically endangered vaquita porpoise, with fewer than 10 individuals remaining in the wild.
+An interactive iOS application to raise awareness about the critically endangered vaquita porpoise, with fewer than 10 individuals remaining in the wild.
 
 ## Features
 
-- Interactive vaquita avatar that you can customize and adopt on your Apple Watch
+- Interactive vaquita avatar that you can customize and adopt
 - Educational content about vaquitas and their conservation status
 - Engaging animations and visual effects
 - Virtual adoption system to support conservation efforts
 
 ## Project Structure
 
-- Located within the `VaquitaWatch/` directory.
+- Main application code is likely within the `VaquitaWatch/` directory (despite the name, it targets iOS).
 - SwiftUI-based interface
 - MVVM architecture (`Models/`, `Views/`, `ViewModels/` directories)
 - Uses environment objects for state management
@@ -21,7 +21,7 @@ An interactive WatchOS application to raise awareness about the critically endan
 
 1. Clone this repository
 2. Open the `VaquitaWatch.xcodeproj` file in Xcode 14 or later.
-3. Build and run on an Apple Watch device or simulator (check project settings for minimum watchOS version).
+3. Build and run on an iOS device or simulator (check project settings for minimum iOS version, likely iOS 15+ based on initial README).
 
 ## Contributing
 
@@ -59,7 +59,7 @@ To add your custom vaquita character designs to the app:
     ```
 5.  Repeat for accessories in the `Accessories` group within the Assets catalog, following the same `.imageset` structure.
 
-Using SVGs and the `.imageset` structure ensures your characters and accessories scale perfectly on different Apple Watch screen sizes. The `VaquitaImageView` (or relevant view) should load these assets by their image set name.
+Using SVGs and the `.imageset` structure ensures your characters and accessories scale perfectly on different iOS screen sizes. The relevant view (e.g., `VaquitaImageView`) should load these assets by their image set name.
 
 ## License
 
