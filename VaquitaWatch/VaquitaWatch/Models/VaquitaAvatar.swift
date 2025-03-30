@@ -3,7 +3,7 @@ import SwiftUI
 // Available avatar customization options
 enum VaquitaSkin: String, CaseIterable, Identifiable {
     case classic = "Classic"
-    case blue = "Deep Blue"
+    case explorer = "Explorer"
     case night = "Night Glow"
     case coral = "Coral Reef"
     case golden = "Golden Sunset"

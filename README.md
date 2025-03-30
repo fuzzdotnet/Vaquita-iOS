@@ -38,7 +38,7 @@ To add your custom vaquita character designs to the app:
    - Create a directory structure: `Assets.xcassets/Vaquitas/`
    - Add your vaquita character files with these naming conventions:
      - Base vaquita: `vaquita_classic.svg` (48px base size)
-     - Deep Blue variant: `vaquita_deep_blue.svg` (48px base size)
+     - Explorer variant: `vaquita_explorer.svg` (48px base size)
      - Night Glow variant: `vaquita_night_glow.svg` (48px base size)
      - Coral Reef variant: `vaquita_coral_reef.svg` (48px base size)
      - Golden Sunset variant: `vaquita_golden_sunset.svg` (48px base size)
