@@ -308,30 +308,62 @@ struct VaquitaImageView: View {
     let accessory: String
     var isBreathing: Bool
     
+    private func getVaquitaImageName() -> String {
+        // Convert the skin name to a valid asset name format
+        let baseName = skin.lowercased().replacingOccurrences(of: " ", with: "_")
+        return "Vaquitas/vaquita_\(baseName)"
+    }
+    
+    private func getAccessoryImageName() -> String {
+        if accessory == VaquitaAccessory.none.rawValue {
+            return ""
+        }
+        // Convert the accessory name to a valid asset name format
+        let baseName = accessory.lowercased().replacingOccurrences(of: " ", with: "_")
+        return "Accessories/\(baseName)_accessory"
+    }
+    
     var body: some View {
         ZStack {
-            // For now, we'll use a placeholder circle
-            // In a real app, this would be replaced with actual vaquita assets
-            Circle()
-                .fill(Color.white.opacity(0.2))
-                .frame(width: 220, height: 220)
-                .overlay(
-                    Image(systemName: "figure.wave")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 120, height: 120)
-                        .foregroundColor(.white)
-                )
-                .overlay(
-                    Circle()
-                        .strokeBorder(Color.white.opacity(0.3), lineWidth: 4)
-                )
+            // The vaquita character image
+            if let _ = UIImage(named: getVaquitaImageName()) {
+                // Use the actual image if available
+                Image(getVaquitaImageName())
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .scaleEffect(isBreathing ? 1.05 : 1.0)
+            } else {
+                // Fallback to placeholder if image not found
+                Circle()
+                    .fill(Color.white.opacity(0.2))
+                    .frame(width: 220, height: 220)
+                    .overlay(
+                        Image(systemName: "figure.wave")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 120, height: 120)
+                            .foregroundColor(.white)
+                    )
+                    .overlay(
+                        Circle()
+                            .strokeBorder(Color.white.opacity(0.3), lineWidth: 4)
+                    )
+            }
             
             // Accessory overlay
             if accessory != VaquitaAccessory.none.rawValue {
-                Text("✨")
-                    .font(.system(size: 40))
-                    .offset(y: -60)
+                if let _ = UIImage(named: getAccessoryImageName()) {
+                    // Use the actual accessory image if available
+                    Image(getAccessoryImageName())
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .scaleEffect(isBreathing ? 1.05 : 1.0)
+                } else {
+                    // Fallback to emoji for missing accessories
+                    Text("✨")
+                        .font(.system(size: 40))
+                        .offset(y: -60)
+                }
             }
         }
     }
