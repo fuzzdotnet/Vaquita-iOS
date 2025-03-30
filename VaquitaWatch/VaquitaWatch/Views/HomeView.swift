@@ -95,7 +95,10 @@ struct HomeView: View {
                             .shadow(color: Color.black.opacity(0.05), radius: 5)
                         }
                         
-                        NavigationLink(destination: MissionView()) {
+                        Button(action: {
+                            // Navigate to mission screen
+                            selectedTab = 4
+                        }) {
                             HStack {
                                 Image(systemName: "info.circle.fill")
                                     .foregroundColor(Color.oceanBlue)
