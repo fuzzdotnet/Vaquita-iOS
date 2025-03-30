@@ -7,7 +7,7 @@ private struct SkinOptionViewLocal: View {
     let isLocked: Bool
     
     private var imageName: String {
-        "vaquita_\(title.lowercased().replacingOccurrences(of: " ", with: "_"))"
+        "Vaquitas/vaquita_\(title.lowercased().replacingOccurrences(of: " ", with: "_"))"
     }
     
     var body: some View {
