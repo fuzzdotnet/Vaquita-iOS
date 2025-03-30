@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var appState: AppState
     @State private var showingDonationOptions = false
+    @Binding var selectedTab: Int
     
     var body: some View {
         ZStack {
@@ -56,11 +57,7 @@ struct HomeView: View {
                     // Care for your Vaquita button
                     Button(action: {
                         // Navigate to avatar screen
-                        // For now, we'll just update the vaquita happiness
-                        var updatedVaquita = appState.userVaquita
-                        updatedVaquita.interact()
-                        appState.userVaquita = updatedVaquita
-                        appState.checkIn()
+                        selectedTab = 1
                     }) {
                         HStack {
                             Image(systemName: "heart.fill")
@@ -365,4 +362,13 @@ struct DonationView: View {
             })
         }
     }
-} 
+}
+
+// Preview initializer for HomeView
+#if DEBUG
+extension HomeView {
+    init() {
+        self._selectedTab = .constant(0)
+    }
+}
+#endif 
