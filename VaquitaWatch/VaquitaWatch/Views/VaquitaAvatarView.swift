@@ -744,78 +744,261 @@ struct AdoptionCertificateView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 30) {
-                    Text("Certificate of Adoption")
-                        .font(.system(.largeTitle, design: .serif))
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                        .padding(.top, 40)
-                    
-                    Text("This certifies that")
-                        .font(.system(.body, design: .serif))
-                        .italic()
-                    
-                    Text(vaquita.name)
-                        .font(.system(.title, design: .serif))
-                        .fontWeight(.bold)
-                        .foregroundColor(Color.oceanDarkBlue)
-                    
-                    ZStack {
-                        Circle()
-                            .fill(Color.oceanDarkBlue.opacity(0.2))
-                            .frame(width: 180, height: 180)
-                        
-                        VaquitaImageView(
-                            skin: vaquita.skin,
-                            accessory: vaquita.accessory,
-                            isBreathing: true
-                        )
-                        .frame(width: 180, height: 180)
-                    }
-                    .padding()
-                    
-                    Text("has been adopted on")
-                        .font(.system(.body, design: .serif))
-                        .italic()
-                    
-                    Text(dateFormatter.string(from: vaquita.adoptionDate ?? Date()))
-                        .font(.system(.title3, design: .serif))
-                        .fontWeight(.semibold)
-                    
-                    Text("Thank you for your contribution to vaquita conservation.")
-                        .font(.system(.body, design: .serif))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                    
-                    Text("Your adoption helps protect one of the most endangered marine mammals on the planet.")
-                        .font(.system(.body, design: .serif))
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal)
-                    
-                    Button(action: {
-                        isShareSheetShowing = true
-                    }) {
-                        HStack {
-                            Image(systemName: "square.and.arrow.up")
-                            Text("Share Certificate")
+                VStack {
+                    // Certificate Container
+                    VStack(spacing: 20) {
+                        // Certificate Header with decorative elements
+                        VStack(spacing: 10) {
+                            // Decorative wave pattern at top
+                            Image(systemName: "waveform")
+                                .font(.system(size: 40))
+                                .foregroundColor(Color.oceanDarkBlue.opacity(0.6))
+                                .padding(.top, 30)
+                            
+                            Text("OFFICIAL")
+                                .font(.system(.caption, design: .serif))
+                                .kerning(3)
+                                .foregroundColor(Color.oceanDarkBlue.opacity(0.8))
+                            
+                            Text("Certificate of Adoption")
+                                .font(.system(.largeTitle, design: .serif))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color.oceanDarkBlue)
+                                .padding(.top, 5)
+                            
+                            // Decorative divider
+                            HStack(spacing: 15) {
+                                Rectangle()
+                                    .frame(height: 1)
+                                    .foregroundColor(Color.oceanDarkBlue.opacity(0.4))
+                                
+                                Image(systemName: "seal.fill")
+                                    .foregroundColor(Color.coralAccent)
+                                
+                                Rectangle()
+                                    .frame(height: 1)
+                                    .foregroundColor(Color.oceanDarkBlue.opacity(0.4))
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.top, 10)
                         }
-                        .padding()
-                        .background(Color.oceanDarkBlue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                        
+                        // Decorative corners (like an official certificate)
+                        ZStack {
+                            // Vaquita Image
+                            ZStack {
+                                // Water-like circular background
+                                Circle()
+                                    .fill(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                Color.oceanDarkBlue.opacity(0.1),
+                                                Color.tealAccent.opacity(0.2)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 200, height: 200)
+                                
+                                // Light beams effect
+                                ZStack {
+                                    ForEach(0..<8) { i in
+                                        Rectangle()
+                                            .fill(Color.white.opacity(0.4))
+                                            .frame(width: 100, height: 2)
+                                            .rotationEffect(.degrees(Double(i) * 22.5))
+                                    }
+                                }
+                                
+                                VaquitaImageView(
+                                    skin: vaquita.skin,
+                                    accessory: vaquita.accessory,
+                                    isBreathing: true
+                                )
+                                .frame(width: 160, height: 160)
+                            }
+                            .padding()
+                            
+                            // Decorative corner ornaments
+                            VStack {
+                                HStack {
+                                    CornerOrnament()
+                                        .rotationEffect(.degrees(0))
+                                    Spacer()
+                                    CornerOrnament()
+                                        .rotationEffect(.degrees(90))
+                                }
+                                Spacer()
+                                HStack {
+                                    CornerOrnament()
+                                        .rotationEffect(.degrees(270))
+                                    Spacer()
+                                    CornerOrnament()
+                                        .rotationEffect(.degrees(180))
+                                }
+                            }
+                            .padding(20)
+                        }
+                        .frame(height: 260)
+                        
+                        // Certificate Text
+                        VStack(spacing: 15) {
+                            Text("This certifies that")
+                                .font(.system(.subheadline, design: .serif))
+                                .italic()
+                                .foregroundColor(Color.oceanDarkBlue.opacity(0.8))
+                            
+                            Text(vaquita.name)
+                                .font(.system(.title, design: .serif))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color.oceanDarkBlue)
+                                .padding(.horizontal, 20)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
+                            
+                            Text("has been officially adopted on")
+                                .font(.system(.subheadline, design: .serif))
+                                .italic()
+                                .foregroundColor(Color.oceanDarkBlue.opacity(0.8))
+                            
+                            Text(dateFormatter.string(from: vaquita.adoptionDate ?? Date()))
+                                .font(.system(.title3, design: .serif))
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color.oceanDarkBlue)
+                            
+                            Text("through the Vaquita Watch Conservation Initiative")
+                                .font(.system(.footnote, design: .serif))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                                .foregroundColor(Color.oceanDarkBlue.opacity(0.7))
+                        }
+                        .padding(.bottom, 10)
+                        
+                        // Official Seal
+                        HStack(spacing: 30) {
+                            // Digital signature
+                            VStack {
+                                Text("_________________")
+                                    .font(.system(.footnote))
+                                    .foregroundColor(Color.oceanDarkBlue)
+                                    
+                                Text("Conservation Director")
+                                    .font(.system(.caption, design: .serif))
+                                    .foregroundColor(Color.oceanDarkBlue.opacity(0.7))
+                            }
+                            
+                            // Official Seal
+                            ZStack {
+                                Circle()
+                                    .stroke(Color.coralAccent, lineWidth: 2)
+                                    .frame(width: 70, height: 70)
+                                
+                                Circle()
+                                    .fill(Color.coralAccent.opacity(0.1))
+                                    .frame(width: 65, height: 65)
+                                
+                                Image(systemName: "seal.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(Color.coralAccent)
+                                    
+                                Text("OFFICIAL")
+                                    .font(.system(size: 6, weight: .bold))
+                                    .foregroundColor(Color.coralAccent)
+                                    .offset(y: -18)
+                                
+                                Text("VERIFIED")
+                                    .font(.system(size: 6, weight: .bold))
+                                    .foregroundColor(Color.coralAccent)
+                                    .offset(y: 18)
+                            }
+                        }
+                        .padding(.top, 10)
+                        .padding(.bottom, 30)
+                        
+                        // Message about conservation efforts
+                        VStack(spacing: 10) {
+                            Text("Your adoption directly supports conservation efforts to protect the critically endangered vaquita in its natural habitat.")
+                                .font(.system(.footnote, design: .serif))
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(Color.oceanDarkBlue.opacity(0.7))
+                                .padding(.horizontal)
+                            
+                            Text("With fewer than 10 individuals remaining in the wild, every contribution makes a difference.")
+                                .font(.system(.caption, design: .serif))
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(Color.coralAccent)
+                                .padding(.horizontal)
+                        }
+                        .padding(.bottom, 20)
+                        
+                        // Share button
+                        Button(action: {
+                            isShareSheetShowing = true
+                        }) {
+                            HStack {
+                                Image(systemName: "square.and.arrow.up")
+                                Text("Share Certificate")
+                            }
+                            .padding(.horizontal, 25)
+                            .padding(.vertical, 12)
+                            .background(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.oceanDarkBlue, Color.tealAccent]),
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .foregroundColor(.white)
+                            .cornerRadius(25)
+                            .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2)
+                        }
+                        .padding(.bottom, 25)
                     }
-                    .padding(.top, 20)
+                    .padding(.horizontal)
+                    .background(
+                        ZStack {
+                            // Parchment-like texture
+                            Color(UIColor.systemBackground)
+                            
+                            // Very subtle pattern overlay
+                            Rectangle()
+                                .fill(Color.oceanDarkBlue.opacity(0.03))
+                                
+                            // Subtle wave pattern at low opacity for texture
+                            VStack {
+                                ForEach(0..<20) { i in
+                                    Spacer()
+                                    ZigzagPattern()
+                                        .stroke(Color.oceanDarkBlue.opacity(0.03), lineWidth: 1)
+                                        .frame(height: 10)
+                                }
+                                Spacer()
+                            }
+                        }
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 25))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 25)
+                            .strokeBorder(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color.oceanDarkBlue.opacity(0.6),
+                                        Color.tealAccent.opacity(0.6),
+                                        Color.oceanDarkBlue.opacity(0.6)
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 2
+                            )
+                    )
+                    .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+                    .padding()
                 }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 25)
-                        .fill(Color.white)
-                        .shadow(radius: 5)
-                        .padding()
-                )
+                .padding(.vertical)
             }
-            .background(Color.oceanDeepBlue.opacity(0.1))
+            .background(Color.oceanDeepBlue.opacity(0.05))
             .navigationBarItems(
                 trailing: Button("Done") {
                     presentationMode.wrappedValue.dismiss()
@@ -828,6 +1011,58 @@ struct AdoptionCertificateView: View {
             let textToShare = "I just adopted \(vaquita.name) the vaquita in the Vaquita Watch app! Join me in helping protect this endangered species: [App Download Link]"
             ActivityViewController(activityItems: [textToShare])
         }
+    }
+}
+
+// Decorative corner ornament for certificate
+struct CornerOrnament: View {
+    var body: some View {
+        ZStack {
+            Path { path in
+                path.move(to: CGPoint(x: 0, y: 0))
+                path.addLine(to: CGPoint(x: 15, y: 0))
+                path.addLine(to: CGPoint(x: 15, y: 2))
+                path.addLine(to: CGPoint(x: 2, y: 2))
+                path.addLine(to: CGPoint(x: 2, y: 15))
+                path.addLine(to: CGPoint(x: 0, y: 15))
+                path.closeSubpath()
+            }
+            .fill(Color.oceanDarkBlue.opacity(0.6))
+            
+            Path { path in
+                path.move(to: CGPoint(x: 5, y: 0))
+                path.addLine(to: CGPoint(x: 20, y: 0))
+                path.addLine(to: CGPoint(x: 20, y: 2))
+                path.addLine(to: CGPoint(x: 7, y: 2))
+                path.addLine(to: CGPoint(x: 7, y: 15))
+                path.addLine(to: CGPoint(x: 5, y: 15))
+                path.closeSubpath()
+            }
+            .fill(Color.tealAccent.opacity(0.4))
+        }
+        .frame(width: 25, height: 25)
+    }
+}
+
+// Zigzag pattern for certificate background
+struct ZigzagPattern: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let width = rect.width
+        let height = rect.height
+        let midHeight = height / 2
+        let waveWidth: CGFloat = 10
+        
+        path.move(to: CGPoint(x: 0, y: midHeight))
+        
+        var x: CGFloat = 0
+        while x < width {
+            path.addLine(to: CGPoint(x: x + waveWidth / 2, y: midHeight + height / 4))
+            path.addLine(to: CGPoint(x: x + waveWidth, y: midHeight))
+            x += waveWidth
+        }
+        
+        return path
     }
 }
 
