@@ -228,6 +228,26 @@ struct VaquitaAvatarView: View {
                                         .foregroundColor(.white.opacity(0.8))
                                 }
                             }
+                            
+                            // Vaquita in the wild gallery
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Vaquitas in the Wild")
+                                    .font(.system(.subheadline, design: .rounded))
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.white)
+                                    .padding(.top, 10)
+                                
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 15) {
+                                        // Gallery images (placeholders for now)
+                                        ForEach(0..<4) { index in
+                                            WildVaquitaImageView(index: index)
+                                        }
+                                    }
+                                    .padding(.horizontal, 5)
+                                    .padding(.vertical, 8)
+                                }
+                            }
                         }
                         .padding()
                         .background(Color.white.opacity(0.1))
@@ -1096,5 +1116,221 @@ struct AdoptionBenefitRow: View {
             Text(text)
                 .foregroundColor(.primary)
         }
+    }
+}
+
+// Wild Vaquita Image View for gallery
+struct WildVaquitaImageView: View {
+    let index: Int
+    @State private var showingDetail = false
+    
+    var body: some View {
+        Button(action: {
+            showingDetail = true
+        }) {
+            ZStack {
+                // Placeholder image - in real app, would use actual images
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.oceanDarkBlue.opacity(0.6),
+                                Color.oceanDeepBlue.opacity(0.9)
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(width: 120, height: 90)
+                    .overlay(
+                        ZStack {
+                            // Wave overlay to simulate ocean
+                            WaveShape()
+                                .fill(Color.white.opacity(0.2))
+                                .frame(height: 40)
+                                .offset(y: 20)
+                                .mask(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .frame(width: 120, height: 90)
+                                )
+                            
+                            // Simple vaquita silhouette - this would be an actual image in the real app
+                            Image(systemName: ["fish.fill", "wave.3.forward", "figure.open.water", "drop.fill"][index % 4])
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 35, height: 35)
+                                .foregroundColor(.white.opacity(0.85))
+                                .offset(y: -5)
+                            
+                            // Location and year text
+                            VStack {
+                                Spacer()
+                                HStack {
+                                    Text(["Gulf of California", "Marine Reserve", "San Felipe", "Protected Waters"][index % 4])
+                                        .font(.system(size: 8))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.black.opacity(0.3))
+                                        .cornerRadius(4)
+                                }
+                                .padding(.bottom, 6)
+                            }
+                        }
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                    )
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        .sheet(isPresented: $showingDetail) {
+            VaquitaDetailView(index: index)
+        }
+    }
+}
+
+// Wave shape for the water effect in gallery images
+struct WaveShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let width = rect.width
+        let height = rect.height
+        
+        path.move(to: CGPoint(x: 0, y: height * 0.5))
+        
+        // Create a simple wave pattern
+        for x in stride(from: 0, to: width, by: 5) {
+            let relativeX = x / width
+            let y = sin(relativeX * .pi * 4) * 5 + height * 0.5
+            path.addLine(to: CGPoint(x: x, y: y))
+        }
+        
+        path.addLine(to: CGPoint(x: width, y: height))
+        path.addLine(to: CGPoint(x: 0, y: height))
+        path.closeSubpath()
+        
+        return path
+    }
+}
+
+// Detail view when user taps on a gallery image
+struct VaquitaDetailView: View {
+    let index: Int
+    @Environment(\.presentationMode) var presentationMode
+    
+    var titles = [
+        "Rare Vaquita Sighting",
+        "Mother and Calf",
+        "Vaquita Surfacing",
+        "Conservation Area"
+    ]
+    
+    var descriptions = [
+        "One of the few documented sightings of a vaquita in its natural habitat. Vaquitas are extremely elusive and rarely photographed in the wild.",
+        "A mother and calf pair, a rare and precious sight. Vaquitas typically give birth to one calf every two years, making their population recovery extremely slow.",
+        "A vaquita briefly surfaces for air. They typically remain submerged and are difficult to spot, making conservation efforts challenging.",
+        "The protected marine reserve where conservation efforts are focused. Illegal fishing in these waters remains the biggest threat to vaquita survival."
+    ]
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                // Header with close button
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(Color.oceanDarkBlue.opacity(0.7))
+                    }
+                    .padding(.top, 20)
+                    .padding(.trailing, 20)
+                }
+                
+                // Placeholder for full image
+                ZStack {
+                    Rectangle()
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.oceanDarkBlue.opacity(0.7),
+                                    Color.oceanDeepBlue.opacity(0.9)
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .aspectRatio(4/3, contentMode: .fit)
+                    
+                    // Placeholder icon - in real app would be actual image
+                    Image(systemName: ["fish.fill", "wave.3.forward", "figure.open.water", "drop.fill"][index % 4])
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 100, height: 100)
+                        .foregroundColor(.white.opacity(0.85))
+                }
+                .padding(.horizontal)
+                
+                // Image title and description
+                VStack(alignment: .leading, spacing: 16) {
+                    Text(titles[index % 4])
+                        .font(.system(.title2, design: .rounded))
+                        .fontWeight(.bold)
+                        .foregroundColor(Color.oceanDarkBlue)
+                    
+                    Text(descriptions[index % 4])
+                        .font(.body)
+                        .foregroundColor(.primary.opacity(0.8))
+                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    HStack {
+                        Label("Gulf of California", systemImage: "mappin.and.ellipse")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                        
+                        Spacer()
+                        
+                        Label("2023", systemImage: "calendar")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Divider()
+                        .padding(.vertical, 5)
+                    
+                    Text("About Vaquita Photography")
+                        .font(.headline)
+                        .foregroundColor(Color.oceanDarkBlue)
+                        .padding(.top, 5)
+                    
+                    Text("Capturing images of vaquitas is extremely difficult due to their rarity and elusive nature. Most documentation efforts are conducted through careful conservation monitoring to minimize disturbance to these critically endangered animals.")
+                        .font(.subheadline)
+                        .foregroundColor(.primary.opacity(0.8))
+                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    Button(action: {
+                        // Would link to conservation efforts in a real app
+                    }) {
+                        Text("Learn More About Conservation Efforts")
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(Color.tealAccent)
+                            .cornerRadius(8)
+                    }
+                    .padding(.top, 10)
+                }
+                .padding()
+                
+                Spacer(minLength: 40)
+            }
+        }
+        .background(Color.white)
+        .edgesIgnoringSafeArea(.bottom)
     }
 } 
