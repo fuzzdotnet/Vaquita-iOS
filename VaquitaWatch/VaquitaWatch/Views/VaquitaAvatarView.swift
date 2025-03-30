@@ -6,10 +6,14 @@ private struct SkinOptionViewLocal: View {
     let isSelected: Bool
     let isLocked: Bool
     
+    private var imageName: String {
+        "vaquita_\(title.lowercased().replacingOccurrences(of: " ", with: "_"))"
+    }
+    
     var body: some View {
         VStack {
             Circle()
-                .fill(isLocked ? Color.gray.opacity(0.3) : Color.oceanBlue.opacity(0.7))
+                .fill(isLocked ? Color.gray.opacity(0.3) : Color.oceanBlue.opacity(0.1))
                 .frame(width: 80, height: 80)
                 .overlay(
                     Group {
@@ -17,9 +21,10 @@ private struct SkinOptionViewLocal: View {
                             Image(systemName: "lock.fill")
                                 .foregroundColor(.white)
                         } else {
-                            Image(systemName: "figure.wave")
-                                .font(.system(size: 30))
-                                .foregroundColor(.white)
+                            Image(imageName)
+                                .resizable()
+                                .scaledToFit()
+                                .padding(12)
                         }
                     }
                 )
