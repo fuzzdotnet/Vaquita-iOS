@@ -114,44 +114,47 @@ struct MissionView: View {
                     .padding(.horizontal)
                 }
                 
-                // How to help section
-                VStack(spacing: 16) {
-                    Text("How You Can Help")
+                // Stay Engaged section (previously How You Can Help)
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Stay Engaged")
                         .font(.system(.title3, design: .rounded))
                         .fontWeight(.bold)
                     
-                    HelpOptionCard(
-                        title: "Support Financially",
-                        description: "Your donations fund critical conservation work by our partner organizations.",
-                        icon: "dollarsign.circle.fill",
-                        color: Color("coralAccent"),
-                        action: {
-                            // Show donation options
-                        }
-                    )
-                    
-                    HelpOptionCard(
-                        title: "Spread Awareness",
-                        description: "Share facts about vaquitas with your friends and family to help raise awareness.",
-                        icon: "megaphone.fill",
+                    EngagementOptionCard(
+                        title: "Get Our Newsletter",
+                        description: "Get M/W/F updates about conservation around the world in our newsletter at Fuzz.net.",
+                        icon: "envelope.fill",
                         color: Color("tealAccent"),
-                        action: {
-                            // Show share options
-                        }
+                        url: URL(string: "http://www.fuzz.net")
                     )
                     
-                    HelpOptionCard(
-                        title: "Make Sustainable Choices",
-                        description: "Choose sustainable seafood and reduce your use of single-use plastics.",
-                        icon: "leaf.fill",
-                        color: Color.green,
-                        action: {
-                            // Show sustainable choices info
-                        }
+                    EngagementOptionCard(
+                        title: "Follow Us on Instagram",
+                        description: "Join our Instagram community of vaquita lovers and get pictures and footage from the field.",
+                        icon: "camera.fill",
+                        color: Color.purple,
+                        url: URL(string: "https://www.instagram.com/vaquitawatch")
                     )
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 30)
+                
+                // FUZZ Logo Section
+                VStack(spacing: 8) {
+                    Text("Proudly created by")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    
+                    // FUZZ logo as image
+                    Link(destination: URL(string: "http://www.fuzz.net")!) {
+                        Image("fuzz_logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 120, height: 60)
+                            .shadow(color: Color.black.opacity(0.05), radius: 5)
+                    }
+                }
+                .padding(.bottom, 40)
             }
             .padding(.top)
         }
@@ -272,11 +275,17 @@ struct HelpOptionCard: View {
     
     var body: some View {
         Button(action: action) {
-            HStack(alignment: .top, spacing: 16) {
-                Image(systemName: icon)
-                    .font(.system(size: 30))
-                    .foregroundColor(color)
-                    .frame(width: 36)
+            HStack(alignment: .center, spacing: 16) {
+                // Icon with background
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.2))
+                        .frame(width: 50, height: 50)
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 22))
+                        .foregroundColor(color)
+                }
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
@@ -286,12 +295,91 @@ struct HelpOptionCard: View {
                     Text(description)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 
                 Spacer()
                 
                 Image(systemName: "chevron.right")
                     .foregroundColor(.secondary)
+            }
+            .padding()
+            .background(Color(.systemBackground))
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.05), radius: 5)
+        }
+    }
+}
+
+// Engagement option card component for external links
+struct EngagementOptionCard: View {
+    let title: String
+    let description: String
+    let icon: String
+    let color: Color
+    let url: URL?
+    
+    var body: some View {
+        if let url = url {
+            Link(destination: url) {
+                HStack(alignment: .center, spacing: 16) {
+                    // Icon with background
+                    ZStack {
+                        Circle()
+                            .fill(color.opacity(0.2))
+                            .frame(width: 50, height: 50)
+                        
+                        Image(systemName: icon)
+                            .font(.system(size: 22))
+                            .foregroundColor(color)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(title)
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                        
+                        Text(description)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+                .background(Color(.systemBackground))
+                .cornerRadius(16)
+                .shadow(color: Color.black.opacity(0.05), radius: 5)
+            }
+        } else {
+            // Fallback for nil URL
+            HStack(alignment: .center, spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.2))
+                        .frame(width: 50, height: 50)
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 22))
+                        .foregroundColor(color)
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    Text(description)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.leading)
+                }
+                
+                Spacer()
             }
             .padding()
             .background(Color(.systemBackground))
